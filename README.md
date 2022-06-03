@@ -6,7 +6,7 @@ A complete PowerShell developer experience - all in a Docker container!
 
 This container image contains:
 * Coder.com's [code-server](https://github.com/codercom/code-server)
-* [PowerShell](https://github.com/PowerShell/PowerShell) 7.2.4
+* [PowerShell](https://github.com/PowerShell/PowerShell) 7.3.0 - Pre-Release
 * The [PowerShell extension for vscode](https://github.com/PowerShell/vscode-powershell) which works with code-server (2022.5.1)
 
 Based on the popular LinuxServer.io image ghcr.io/linuxserver/code-server
@@ -23,4 +23,4 @@ You can find the container image [on Dockerhub](https://hub.docker.com/repositor
 
 ## Tags
 
-* *latest:* contains the latest version of the PowerShell extension 2022.5.1 and PowerShell 7.2.4
+* *latest:* contains the latest version of the PowerShell extension 2022.5.1 and PowerShell 7.3.0 - Pre-Release
