@@ -4,7 +4,7 @@ USER root
 
 # PowerShell args
 ARG PS_VERSION=7.3.0-preview.4
-ARG PS_PACKAGE=powershell-preview_${PS_VERSION}-preview.4-1.deb_amd64.deb
+ARG PS_PACKAGE=powershell-preview_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
 # PowerShell extension args
