@@ -3,12 +3,12 @@ FROM ghcr.io/linuxserver/code-server
 USER root
 
 # PowerShell args
-ARG PS_VERSION=7.2.4
+ARG PS_VERSION=7.2.5
 ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
 # PowerShell extension args
-ARG PS_EXTENSION_VERSION=2022.5.1
+ARG PS_EXTENSION_VERSION=2022.6.1
 ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
 ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
 
@@ -57,15 +57,15 @@ RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_E
         "
 
 ARG VCS_REF="none"
-ARG IMAGE_NAME=tylerl0706/powershell-code-server:stable
+ARG IMAGE_NAME=ktjaden/codeserver:latest
 
-LABEL maintainer="Tyler Leonhardt <me@tylerleonhardt.com>" \
-      readme.md="https://github.com/TylerLeonhardt/powershell-code-server/blob/master/README.md" \
+LABEL maintainer="Proxicon https://github.com/Proxicon" \
+      readme.md="https://github.com/Proxicon/powershell-vscode-server/blob/main/README.md" \
       description="Coder.com's code-server, PowerShell, and the PowerShell extension for vscode - all in one container." \
-      org.label-schema.url="https://github.com/TylerLeonhardt/powershell-code-server" \
-      org.label-schema.vcs-url="https://github.com/TylerLeonhardt/powershell-code-server" \
-      org.label-schema.name="tylerleonhardt" \
-      org.label-schema.vendor="TylerLeonhardt" \
+      org.label-schema.url="https://github.com/Proxicon/powershell-vscode-server" \
+      org.label-schema.vcs-url="https://github.com/Proxicon/powershell-vscode-server" \
+      org.label-schema.name="Proxicon" \
+      org.label-schema.vendor="Proxicon" \
       org.label-schema.version=${PS_EXTENSION_VERSION} \
       org.label-schema.schema-version="1.0" \
       org.label-schema.vcs-ref=${VCS_REF} \
