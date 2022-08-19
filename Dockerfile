@@ -3,12 +3,12 @@ FROM ghcr.io/linuxserver/code-server
 USER root
 
 # PowerShell args
-ARG PS_VERSION=7.2.5
+ARG PS_VERSION=7.2.6
 ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
 # PowerShell extension args
-ARG PS_EXTENSION_VERSION=2022.6.1
+ARG PS_EXTENSION_VERSION=2022.7.2
 ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
 ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
 
