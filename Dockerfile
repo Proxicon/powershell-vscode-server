@@ -3,7 +3,7 @@ FROM ghcr.io/linuxserver/code-server
 USER root
 
 # PowerShell args
-ARG PS_VERSION=7.3.11
+ARG PS_VERSION=7.4.1
 ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
