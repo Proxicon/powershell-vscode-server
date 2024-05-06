@@ -23,9 +23,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: set lower case owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+      env:
+        OWNER: '${{ github.repository_owner }}'      
+
     # Set IMAGE_NAME to lowercase
     - name: Set IMAGE_NAME to lowercase
-      run: echo "IMAGE_NAME=${{ github.repository_owner }}/$(echo ${{ github.repository }} | awk -F '/' '{print tolower($2)}')" >> $GITHUB_ENV
+      run: echo "IMAGE_NAME=${OWNER_LC}/$(echo ${{ github.repository }} | awk -F '/' '{print tolower($2)}')" >> $GITHUB_ENV
 
     # Setup Docker Buildx
     - name: Set up Docker Buildx
