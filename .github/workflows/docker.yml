@@ -11,8 +11,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
+  IMAGE_NAME: ${{ github.repository_owner }}/${{ github.event.repository.name | lower }}
+   
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
