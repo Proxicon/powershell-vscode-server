@@ -11,8 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/${{ github.event.repository.name | lower }}
-   
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -23,6 +22,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    # Set IMAGE_NAME to lowercase
+    - name: Set IMAGE_NAME to lowercase
+      run: echo "IMAGE_NAME=${{ github.repository_owner }}/$(echo ${{ github.repository }} | awk -F '/' '{print tolower($2)}')" >> $GITHUB_ENV
 
     # Setup Docker Buildx
     - name: Set up Docker Buildx
