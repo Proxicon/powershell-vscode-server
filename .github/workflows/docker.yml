@@ -62,6 +62,11 @@ jobs:
       with:
         cosign-release: 'v2.1.1'
 
+    # Clear local TUF cache
+    - name: Clear TUF cache
+      if: github.event_name != 'pull_request'
+      run: rm -rf ~/.sigstore
+
     # Extract metadata (tags, labels) for Docker
     - name: Extract Docker metadata
       id: meta
