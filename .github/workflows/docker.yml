@@ -58,9 +58,14 @@ jobs:
     # Install Cosign for signing
     - name: Install cosign
       if: github.event_name != 'pull_request'
-      uses: sigstore/cosign-installer@v3.1.1
+      uses: sigstore/cosign-installer@v3.5.0
       with:
         cosign-release: 'v2.1.1'
+
+    # Verify Cosign installation
+    - name: Verify Cosign installation
+      if: github.event_name != 'pull_request'
+      run: cosign version
 
     # Clear local TUF cache
     - name: Clear TUF cache
