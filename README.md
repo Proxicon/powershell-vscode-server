@@ -17,7 +17,7 @@ You can find the container image [on Dockerhub](https://hub.docker.com/repositor
 ## Let's go!
 
 1. `docker pull ghcr.io/proxicon/powershell-vscode-server:latest`
-2. `docker run -t -p 127.0.0.1:8443:8443 -v "${PWD}:/root/project" ghcr.io/proxicon/powershell-vscode-server:latest code-server --allow-http --no-auth`
+2. `docker run -t -p 8443:8443 -v "${PWD}:/root/project" ghcr.io/proxicon/powershell-vscode-server:latest code-server`
 3. Open `http://localhost:8443` in your browser of choice
 
 > The second command will start the container on port `8443` and mount whatever is in `PWD` allowing you to actually modify the files on your host OS from within the container.
@@ -75,11 +75,8 @@ services:
         
         # LB
         - traefik.http.services.vscode-https.loadbalancer.server.port=8443
-      placement:
-        constraints:
-          - node.hostname == docker00
     volumes:
-      - /mnt/containers_data/code:/config
+      - /mnt/code:/config
     ports:
       - "8443:8443"
     networks:
