@@ -12,16 +12,15 @@ ARG PS_EXTENSION_VERSION=2024.2.2
 ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
 ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
 
-# Download the Linux package of PowerShell and the PowerShell extension
+# Download the Linux package of PowerShell
 ADD ${PS_PACKAGE_URL} /tmp/powershell.deb
-ADD ${PS_EXTENSION_PACKAGE_URL} /tmp/vscode-powershell.zip
 
 # Define ENVs for Localization/Globalization
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     # Set a fixed location for the Module analysis cache
     PSModuleAnalysisCachePath=/var/cache/microsoft/powershell/PSModuleAnalysisCache/ModuleAnalysisCache
 
-RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_EXTENSION_VERSION}" \
+RUN echo "PowerShell version: ${PS_VERSION}" \
     && apt-get update \
     # Install PowerShell
     && apt-get install -y /tmp/powershell.deb \
@@ -36,27 +35,16 @@ RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_E
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # Cleanup PowerShell package
-    && rm /tmp/powershell.deb \
-    && pwsh -NoLogo -NoProfile -Command " \
-        \$ErrorActionPreference = 'Stop' ; \
-        \$ProgressPreference = 'SilentlyContinue' ; \
-        #
-        # Intialize powershell module cache
-        #
-        while(!(Test-Path -Path \$env:PSModuleAnalysisCachePath)) { \
-            Write-Host "'Waiting for $env:PSModuleAnalysisCachePath'" ; \
-            Start-Sleep -Seconds 6 ; \
-        } ; \
-        #
-        # Extract and move PowerShell extension to the correct place, then cleanup
-        #
-        Expand-Archive /tmp/vscode-powershell.zip /tmp/vscode-powershell/ ; \
-        \$null = New-Item -Force -ItemType Directory ~/.local/share/code-server/extensions/ ; \
-        Move-Item /tmp/vscode-powershell/extension ~/.local/share/code-server/extensions/ms-vscode.powershell-${PS_EXTENSION_VERSION} ; \
-        Remove-Item -Recurse -Force /tmp/vscode-powershell/ ; \
-        "
+    && rm /tmp/powershell.deb
+
+# Install VSCode PowerShell extension
+RUN curl -L -o /tmp/vscode-powershell.vsix ${PS_EXTENSION_PACKAGE_URL} \
+    && mkdir -p /home/abc/.local/share/code-server/extensions \
+    && code-server --install-extension /tmp/vscode-powershell.vsix \
+    && rm /tmp/vscode-powershell.vsix
+
 # Set permissions
-RUN chown -R 1000:1000 /config
+RUN chown -R 1000:1000 /config /home/abc/.local/share/code-server/extensions
 
 # Switch back to user with UID and GID 1000
 USER 1000:1000
@@ -74,4 +62,4 @@ LABEL maintainer="Proxicon https://github.com/Proxicon" \
       org.label-schema.version=${PS_EXTENSION_VERSION} \
       org.label-schema.schema-version="1.0" \
       org.label-schema.vcs-ref=${VCS_REF} \
-      org.label-schema.docker.cmd="docker run -t -p 8443:8443 -v '\${PWD}:/root/project' ${IMAGE_NAME} code-server --allow-http --no-auth"
+      org.label-schema.docker.cmd="docker run -t -p 8443:8443 -v '\${PWD}:/root/project' ${IMAGE_NAME}"
