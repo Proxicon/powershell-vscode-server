@@ -3,12 +3,12 @@ FROM ghcr.io/linuxserver/code-server
 USER root
 
 # PowerShell args
-ARG PS_VERSION=7.4.1
+ARG PS_VERSION=7.4.2
 ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
 # PowerShell extension args
-ARG PS_EXTENSION_VERSION=2024.0.0
+ARG PS_EXTENSION_VERSION=2024.2.2
 ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
 ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
 
@@ -57,7 +57,7 @@ RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_E
         "
 
 ARG VCS_REF="none"
-ARG IMAGE_NAME=ktjaden/codeserver:latest
+ARG IMAGE_NAME=ghcr.io/proxicon/powershell-vscode-server:latest
 
 LABEL maintainer="Proxicon https://github.com/Proxicon" \
       readme.md="https://github.com/Proxicon/powershell-vscode-server/blob/main/README.md" \
