@@ -40,7 +40,7 @@ RUN echo "PowerShell version: ${PS_VERSION}" \
 # Install VSCode PowerShell extension
 RUN curl -L -o /tmp/vscode-powershell.vsix ${PS_EXTENSION_PACKAGE_URL} \
     && mkdir -p /home/abc/.local/share/code-server/extensions \
-    && code-server --install-extension /tmp/vscode-powershell.vsix \
+    && /usr/bin/code-server --install-extension /tmp/vscode-powershell.vsix \
     && rm /tmp/vscode-powershell.vsix
 
 # Set permissions
