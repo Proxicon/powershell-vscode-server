@@ -55,6 +55,11 @@ RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_E
         Move-Item /tmp/vscode-powershell/extension ~/.local/share/code-server/extensions/ms-vscode.powershell-${PS_EXTENSION_VERSION} ; \
         Remove-Item -Recurse -Force /tmp/vscode-powershell/ ; \
         "
+# Set permissions
+RUN chown -R 1000:1000 /config
+
+# Switch back to user with UID and GID 1000
+USER 1000:1000
 
 ARG VCS_REF="none"
 ARG IMAGE_NAME=ghcr.io/proxicon/powershell-vscode-server:latest
@@ -69,4 +74,4 @@ LABEL maintainer="Proxicon https://github.com/Proxicon" \
       org.label-schema.version=${PS_EXTENSION_VERSION} \
       org.label-schema.schema-version="1.0" \
       org.label-schema.vcs-ref=${VCS_REF} \
-      org.label-schema.docker.cmd="docker run -t -p 127.0.0.1:8443:8443 -v '\${PWD}:/root/project' ${IMAGE_NAME} code-server --allow-http --no-auth"
+      org.label-schema.docker.cmd="docker run -t -p 8443:8443 -v '\${PWD}:/root/project' ${IMAGE_NAME} code-server --allow-http --no-auth"
