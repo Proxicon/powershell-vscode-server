@@ -3,7 +3,7 @@ FROM ghcr.io/linuxserver/code-server
 USER root
 
 # Install necessary tools for querying GitHub API
-RUN apt-get update && apt-get install -y curl jq libicu72
+#RUN apt-get update && apt-get install -y curl jq libicu72
 
 # Fetch latest PowerShell version and extension version
 RUN PS_VERSION=$(curl -s https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
