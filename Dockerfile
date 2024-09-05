@@ -2,13 +2,16 @@ FROM ghcr.io/linuxserver/code-server
 
 USER root
 
-# PowerShell args
-ARG PS_VERSION=7.2.6
+# Install necessary tools for querying GitHub API
+RUN apt-get update && apt-get install -y curl jq libicu67
+
+# Fetch latest PowerShell version
+ARG PS_VERSION=$(curl -s https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
 ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
 
-# PowerShell extension args
-ARG PS_EXTENSION_VERSION=2022.7.2
+# Fetch latest PowerShell extension version
+ARG PS_EXTENSION_VERSION=$(curl -s https://api.github.com/repos/PowerShell/vscode-powershell/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
 ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
 
@@ -18,44 +21,31 @@ ADD ${PS_EXTENSION_PACKAGE_URL} /tmp/vscode-powershell.zip
 
 # Define ENVs for Localization/Globalization
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
-    # Set a fixed location for the Module analysis cache
     PSModuleAnalysisCachePath=/var/cache/microsoft/powershell/PSModuleAnalysisCache/ModuleAnalysisCache
 
+# Install PowerShell and dependencies
 RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_EXTENSION_VERSION}" \
     && apt-get update \
-    # Install PowerShell
     && apt-get install -y /tmp/powershell.deb \
-    # Install PowerShell's dependencies
-    && apt-get install -y \
-    # less is required for help in PowerShell
-        less \
-    # Required for SSL
-        ca-certificates \
-        gss-ntlmssp \
+    && apt-get install -y less ca-certificates gss-ntlmssp \
     && apt-get dist-upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    # Cleanup PowerShell package
     && rm /tmp/powershell.deb \
     && pwsh -NoLogo -NoProfile -Command " \
         \$ErrorActionPreference = 'Stop' ; \
         \$ProgressPreference = 'SilentlyContinue' ; \
-        #
-        # Intialize powershell module cache
-        #
         while(!(Test-Path -Path \$env:PSModuleAnalysisCachePath)) { \
-            Write-Host "'Waiting for $env:PSModuleAnalysisCachePath'" ; \
+            Write-Host \"'Waiting for \$env:PSModuleAnalysisCachePath'\" ; \
             Start-Sleep -Seconds 6 ; \
         } ; \
-        #
-        # Extract and move PowerShell extension to the correct place, then cleanup
-        #
         Expand-Archive /tmp/vscode-powershell.zip /tmp/vscode-powershell/ ; \
         \$null = New-Item -Force -ItemType Directory ~/.local/share/code-server/extensions/ ; \
         Move-Item /tmp/vscode-powershell/extension ~/.local/share/code-server/extensions/ms-vscode.powershell-${PS_EXTENSION_VERSION} ; \
         Remove-Item -Recurse -Force /tmp/vscode-powershell/ ; \
-        "
+    "
 
+# Metadata
 ARG VCS_REF="none"
 ARG IMAGE_NAME=ktjaden/codeserver:latest
 
