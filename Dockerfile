@@ -1,46 +1,29 @@
-FROM ghcr.io/linuxserver/code-server
+FROM ghcr.io/linuxserver/code-server:latest
 
 USER root
 
-# Install necessary tools for querying GitHub API
-RUN apt-get update && apt-get install -y curl jq libicu67
-
-# Fetch latest PowerShell version and extension version
-RUN PS_VERSION=$(curl -s https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
-    && PS_EXTENSION_VERSION=$(curl -s https://api.github.com/repos/PowerShell/vscode-powershell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
-    && PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb \
-    && PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE} \
-    && PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix \
-    && PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE} \
-    # Download the PowerShell and PowerShell extension
-    && curl -L ${PS_PACKAGE_URL} -o /tmp/powershell.deb \
-    && curl -L ${PS_EXTENSION_PACKAGE_URL} -o /tmp/vscode-powershell.zip
-
-# Define ENVs for Localization/Globalization
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
-    PSModuleAnalysisCachePath=/var/cache/microsoft/powershell/PSModuleAnalysisCache/ModuleAnalysisCache
-
-# Install PowerShell and dependencies
-RUN echo "PowerShell version: ${PS_VERSION} PowerShell extension version: ${PS_EXTENSION_VERSION}" \
+# Install PowerShell from Microsoft's repository and other dependencies
+RUN apt-get update \
+    && apt-get install -y curl gnupg apt-transport-https ca-certificates \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-focal-prod focal main" > /etc/apt/sources.list.d/microsoft.list' \
     && apt-get update \
-    && apt-get install -y /tmp/powershell.deb \
-    && apt-get install -y less ca-certificates gss-ntlmssp \
-    && apt-get dist-upgrade -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm /tmp/powershell.deb \
+    && apt-get install -y powershell less gss-ntlmssp
+
+# Download and install the PowerShell extension for VSCode
+RUN PS_EXTENSION_VERSION=$(curl -s https://api.github.com/repos/PowerShell/vscode-powershell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
+    && curl -L https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/powershell-${PS_EXTENSION_VERSION}.vsix -o /tmp/vscode-powershell.zip \
     && pwsh -NoLogo -NoProfile -Command " \
         \$ErrorActionPreference = 'Stop' ; \
         \$ProgressPreference = 'SilentlyContinue' ; \
-        while(!(Test-Path -Path \$env:PSModuleAnalysisCachePath)) { \
-            Write-Host \"'Waiting for \$env:PSModuleAnalysisCachePath'\" ; \
-            Start-Sleep -Seconds 6 ; \
-        } ; \
         Expand-Archive /tmp/vscode-powershell.zip /tmp/vscode-powershell/ ; \
-        \$null = New-Item -Force -ItemType Directory ~/.local/share/code-server/extensions/ ; \
+        New-Item -Force -ItemType Directory ~/.local/share/code-server/extensions/ ; \
         Move-Item /tmp/vscode-powershell/extension ~/.local/share/code-server/extensions/ms-vscode.powershell-${PS_EXTENSION_VERSION} ; \
         Remove-Item -Recurse -Force /tmp/vscode-powershell/ ; \
     "
+
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Metadata
 ARG VCS_REF="none"
