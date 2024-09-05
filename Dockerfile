@@ -5,19 +5,16 @@ USER root
 # Install necessary tools for querying GitHub API
 RUN apt-get update && apt-get install -y curl jq libicu67
 
-# Fetch latest PowerShell version
-ARG PS_VERSION=$(curl -s https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-ARG PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb
-ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
-
-# Fetch latest PowerShell extension version
-ARG PS_EXTENSION_VERSION=$(curl -s https://api.github.com/repos/PowerShell/vscode-powershell/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-ARG PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix
-ARG PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE}
-
-# Download the Linux package of PowerShell and the PowerShell extension
-ADD ${PS_PACKAGE_URL} /tmp/powershell.deb
-ADD ${PS_EXTENSION_PACKAGE_URL} /tmp/vscode-powershell.zip
+# Fetch latest PowerShell version and extension version
+RUN PS_VERSION=$(curl -s https://api.github.com/repos/PowerShell/PowerShell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
+    && PS_EXTENSION_VERSION=$(curl -s https://api.github.com/repos/PowerShell/vscode-powershell/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
+    && PS_PACKAGE=powershell-lts_${PS_VERSION}-1.deb_amd64.deb \
+    && PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE} \
+    && PS_EXTENSION_PACKAGE=powershell-${PS_EXTENSION_VERSION}.vsix \
+    && PS_EXTENSION_PACKAGE_URL=https://github.com/PowerShell/vscode-powershell/releases/download/v${PS_EXTENSION_VERSION}/${PS_EXTENSION_PACKAGE} \
+    # Download the PowerShell and PowerShell extension
+    && curl -L ${PS_PACKAGE_URL} -o /tmp/powershell.deb \
+    && curl -L ${PS_EXTENSION_PACKAGE_URL} -o /tmp/vscode-powershell.zip
 
 # Define ENVs for Localization/Globalization
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
